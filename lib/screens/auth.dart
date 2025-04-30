@@ -28,14 +28,18 @@ if(!isValid){
   return;
 }
   _formKey.currentState!.save();
-  if(_isLogin){
-    // log user in
+  try{
+  if(_isLogin)  {
+    final userCredentials = await _firebase.signInWithEmailAndPassword(
+      email: _enteredEmail, password: _enteredPassword);
+      print(userCredentials);
   }else{
-    try{
+    
            final userCredentials = await _firebase.createUserWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
        print(userCredentials);
-    } on FirebaseAuthException catch (error){
+    } 
+  }on FirebaseAuthException catch (error){
       if(error.code == "email-already-in-use" ){
         // .....
       }
@@ -44,7 +48,6 @@ if(!isValid){
         content: Text(error.message ??  'Authentication failed.')
       ),);
     }
-  }
 }
 
   
