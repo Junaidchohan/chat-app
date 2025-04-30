@@ -9,7 +9,7 @@ class SplashScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text("Flutter chat"),
       ),
-      body: Center(child: Text("Loding in!")),
+      body: Center(child: Text("Loding.....")),
     );
   }
 }
