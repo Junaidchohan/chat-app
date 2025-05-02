@@ -1,3 +1,4 @@
+import 'package:chat_app/widget/user_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -61,6 +62,7 @@ if(!isValid){
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              
               Container(
                 margin: const EdgeInsets.only(
                   top: 30,
@@ -79,8 +81,10 @@ if(!isValid){
                     child: Form(
                       key: _formKey,
                       child: Column(
+                       
                         mainAxisSize: MainAxisSize.min,
-                        children: [
+                        children: [ 
+                          if(!_isLogin) UserImagePicker(),
                           TextFormField(
                             decoration: const InputDecoration(
                                 labelText: 'Email Address'),
