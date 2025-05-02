@@ -4,7 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class UserImagePicker extends StatefulWidget {
-  const UserImagePicker({super.key});
+  const UserImagePicker({super.key, required this.onPickImage});
+//  this is a variable which one communicate parente to chile for communication
+// Callback function to send the picked image from child to parent
+
+  final void Function(File pickedImage) onPickImage;
 
   @override
   State<UserImagePicker> createState() => _UserImagePickerState();
@@ -21,11 +25,13 @@ if(pickedImage == null){
   return;
 }
 
+
+
 setState(() {
   _pickedImageFile = File(pickedImage.path);
 });
 
-
+widget.onPickImage(_pickedImageFile!); // <-- notify parent
 }
 
   @override

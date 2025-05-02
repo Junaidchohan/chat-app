@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chat_app/widget/user_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -20,14 +22,22 @@ final _formKey = GlobalKey<FormState>();
   var _isLogin = true;
   var _enteredEmail = '';
   var _enteredPassword = '';
+  File? _selectedImage;
 
 
   void _submit() async{
   final isValid = _formKey.currentState!.validate();
 
-if(!isValid){
+if(!isValid || !_isLogin && _selectedImage == null){
+  // showing error message....if needed but we are save time in app
   return;
 }
+
+// combine in one check
+// if(!_isLogin && _selectedImage == null){
+//   return;
+// }
+
   _formKey.currentState!.save();
   try{
   if(_isLogin)  {
@@ -84,7 +94,9 @@ if(!isValid){
                        
                         mainAxisSize: MainAxisSize.min,
                         children: [ 
-                          if(!_isLogin) UserImagePicker(),
+                          if(!_isLogin) UserImagePicker(onPickImage: (File pickedImage) { 
+                            _selectedImage = pickedImage;  
+                           },),
                           TextFormField(
                             decoration: const InputDecoration(
                                 labelText: 'Email Address'),
