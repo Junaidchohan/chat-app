@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:chat_app/widget/user_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:chat_app/services/cloudinary_service.dart';
 
 final _firebase = FirebaseAuth.instance;
 
@@ -43,12 +44,32 @@ if(!isValid || !_isLogin && _selectedImage == null){
   if(_isLogin)  {
     final userCredentials = await _firebase.signInWithEmailAndPassword(
       email: _enteredEmail, password: _enteredPassword);
-      print(userCredentials);
+      
   }else{
     
            final userCredentials = await _firebase.createUserWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
-       print(userCredentials);
+
+
+//**Firebase**//
+      //   final storageRef = FirebaseStorage.instance.ref().child("user_images").child('${userCredentials.user}.jpg');
+      //   await storageRef.putFile(_selectedImage!);
+      //  final imageUrl = await storageRef.getDownloadURL();
+      //   print(imageUrl);
+
+
+    //**cloudinary**//
+
+final cloudinary = CloudinaryService();
+final imageUrl = await cloudinary.uploadImage(_selectedImage!);
+
+if (imageUrl != null) {
+  print("Image uploaded to Cloudinary: $imageUrl");
+  // You can store this URL in Firestore later if you want
+}
+
+
+
     } 
   }on FirebaseAuthException catch (error){
       if(error.code == "email-already-in-use" ){
