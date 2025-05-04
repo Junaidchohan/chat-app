@@ -4,6 +4,8 @@ import 'package:chat_app/widget/user_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chat_app/services/cloudinary_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 final _firebase = FirebaseAuth.instance;
 
@@ -24,6 +26,7 @@ final _formKey = GlobalKey<FormState>();
   var _enteredEmail = '';
   var _enteredPassword = '';
   File? _selectedImage;
+  var _isAuthentecating = false;
 
 
   void _submit() async{
@@ -42,6 +45,9 @@ if(!isValid || !_isLogin && _selectedImage == null){
   _formKey.currentState!.save();
   try{
   if(_isLogin)  {
+    setState(() {
+      _isAuthentecating = true;
+    });
     final userCredentials = await _firebase.signInWithEmailAndPassword(
       email: _enteredEmail, password: _enteredPassword);
       
@@ -60,13 +66,30 @@ if(!isValid || !_isLogin && _selectedImage == null){
 
     //**cloudinary**//
 
+
+
+
+
+
 final cloudinary = CloudinaryService();
 final imageUrl = await cloudinary.uploadImage(_selectedImage!);
 
+
 if (imageUrl != null) {
   print("Image uploaded to Cloudinary: $imageUrl");
-  // You can store this URL in Firestore later if you want
+
+  //  Store user info in Firestore
+  await FirebaseFirestore.instance
+      .collection('users')
+      .doc(userCredentials.user!.uid) // use user's UID as document ID
+      .set({
+        'email': _enteredEmail,
+        'image_url': imageUrl,
+        'uid': userCredentials.user!.uid,
+        'created_at': Timestamp.now(),
+      });
 }
+
 
 
 
@@ -79,6 +102,9 @@ if (imageUrl != null) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(error.message ??  'Authentication failed.')
       ),);
+      setState(() {
+      _isAuthentecating = false;
+    });
     }
 }
 
@@ -151,6 +177,9 @@ if (imageUrl != null) {
                             },
                           ),
                           const SizedBox(height: 12),
+                           if(_isAuthentecating)
+                           CircularProgressIndicator(),
+                          if(!_isAuthentecating)
                           ElevatedButton(
                             onPressed: _submit,
                             style: ElevatedButton.styleFrom(
@@ -160,6 +189,16 @@ if (imageUrl != null) {
                             ),
                             child: Text(_isLogin ? 'Login' : 'Signup'),
                           ),
+                           ElevatedButton(
+                            onPressed: _submit,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(context)
+                                  .colorScheme
+                                  .primaryContainer,
+                            ),
+                            child: Text(_isLogin ? 'Login' : 'Signup'),
+                          ),
+                           if(!_isAuthentecating)
                           TextButton(
                             onPressed: () {
                               setState(() {
